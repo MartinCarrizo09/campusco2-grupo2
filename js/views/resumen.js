@@ -18,7 +18,7 @@ function filtersBar(years, f) {
   </form>`;
 }
 
-export function renderResumen(all, f) {
+export function renderResumen(all, f, layout = { chartW: 560, wideW: 1040 }) {
   const years = [...new Set(all.map((r) => r.year))].sort();
   const year = years.includes(Number(f.year)) ? Number(f.year) : years.at(-1);
   const records = all.filter((r) => r.year === year);
@@ -31,6 +31,7 @@ export function renderResumen(all, f) {
   const keys = records.map((r) => ({ key: r.id, label: r.building, color: colorFor(all, r.id) }));
 
   const monthly = stackedBars({
+    width: layout.chartW,
     title: 'Emisiones por mes y sector',
     unit: 'kg CO₂e', keys,
     groups: agg.byMonth.map((m) => ({
@@ -56,9 +57,10 @@ export function renderResumen(all, f) {
     const label = { warm: 'Templado', mean: 'Típico', cold: 'Frío' }[c];
     return { label, sub: 'invierno', value: a.tCO2e, color: 'var(--series-2)', emphasis: c === f.climate, tip: `${CLIMATE_LABELS[c]}: ${fmt(a.m3, 0)} m³ · ${fmt(a.tCO2e, 2)} t CO₂e` };
   });
-  const scenarioChart = compareBars({ width: 1040, title: 'Comparación de escenarios', unit: 't CO₂e', digits: 2, items: [...sensItems, ...climItems] });
+  const scenarioChart = compareBars({ width: layout.wideW, title: 'Comparación de escenarios', unit: 't CO₂e', digits: 2, items: [...sensItems, ...climItems] });
 
   const alt = compareBars({
+    width: layout.chartW,
     title: 'Gas natural frente a bomba de calor', unit: 't CO₂e', digits: 2,
     items: [
       { label: 'Gas natural', sub: `η ${s.efficiency} %`, value: agg.tCO2e, color: 'var(--series-2)', tip: `Caldera a gas: ${fmt(agg.gasKWh, 0)} kWh → ${fmt(agg.tCO2e, 2)} t CO₂e` },
@@ -68,6 +70,7 @@ export function renderResumen(all, f) {
 
   const plan = reductionPlan(records);
   const trajectory = lineChart({
+    width: layout.chartW,
     title: 'Trayectoria del plan de reducción 2026–2030', unit: 't CO₂e', digits: 2,
     points: plan.map((p) => ({ label: String(p.year), value: p.tCO2e, tip: `${p.year} · ${p.label}: ${fmt(p.tCO2e, 2)} t CO₂e` })),
   });
@@ -91,7 +94,7 @@ export function renderResumen(all, f) {
     <section class="panel chart"><header><h2>Evolución mensual</h2><p>kg CO₂e por mes de calefacción, apilado por sector</p></header>${monthly}${legend(keys)}
       ${dataTable(['Mes', ...records.map((r) => r.building), 'Total kg CO₂e'], agg.byMonth.map((m) => [MONTHS[m.month - 1], ...records.map((r) => fmt(m.parts.find((p) => p.id === r.id)?.kgCO2e ?? 0, 0)), fmt(m.kgCO2e, 0)]))}</section>
     <section class="panel chart"><header><h2>Distribución por sector</h2><p>Participación de cada ficha en el total del año</p></header>${share}
-      ${dataTable(['Sector', 'm²', 'm³', 't CO₂e'], agg.results.map(({ record, result }) => [`${record.building} · ${record.sector}`, fmt(result.area, 0), fmt(result.m3, 0), fmt(result.tCO2e, 2)]))}</section>
+      ${dataTable(['Sector', 'm²', 'm³', 't CO₂e'], agg.results.map(({ record, result }) => [`${record.building} · ${record.sector}`, fmt(result.area, 0), fmt(result.m3, 0), fmt(result.tCO2e, 2)]), layout.chartW >= 480 && window.matchMedia('(min-width: 1181px)').matches)}</section>
     <section class="panel chart wide"><header><h2>Comparación de escenarios</h2><p>Azul: pérdidas y rendimiento (bajo, base, alto). Naranja: clima del SMN (invierno templado, típico y frío). La barra resaltada es la selección actual.</p></header>${scenarioChart}
       ${dataTable(['Escenario', 'Detalle', 't CO₂e'], [...sensItems, ...climItems].map((i) => [i.label, i.sub, fmt(i.value, 2)]))}</section>
     <section class="panel chart"><header><h2>Alternativa de mitigación</h2><p>Mismo calor útil entregado con caldera a gas o con bomba de calor eléctrica</p></header>${alt}

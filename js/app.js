@@ -32,13 +32,24 @@ function route() {
   return { view: TITLES[view] ? view : 'resumen', param: decodeURIComponent(param) };
 }
 
-function render() {
+/** Ancho real disponible para los gráficos (se dibujan a escala 1:1 para que el texto sea legible). */
+function chartLayout() {
+  const cs = getComputedStyle(main);
+  const avail = main.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+  const twoCols = window.matchMedia('(min-width: 1181px)').matches;
+  const panelPad = window.matchMedia('(max-width: 640px)').matches ? 34 : 42;
+  const fit = (w) => Math.round(Math.min(1400, Math.max(260, w - panelPad)));
+  return { chartW: fit(twoCols ? (avail - 20) / 2 : avail), wideW: fit(avail) };
+}
+let lastLayout = '';
+
+function render({ keepFocus = false } = {}) {
   const { view, param } = route();
   const all = repo.findAll();
   document.querySelectorAll('[data-nav] a').forEach((a) => a.toggleAttribute('aria-current', a.getAttribute('href') === `#${view}`));
   document.title = `${TITLES[view]} · CampusCO₂ Grupo 2`;
   const views = {
-    resumen: () => renderResumen(all, filters),
+    resumen: () => { const l = chartLayout(); lastLayout = `${l.chartW}|${l.wideW}`; return renderResumen(all, filters, l); },
     fichas: () => renderFichas(all),
     carga: () => {
       const existing = param ? all.find((r) => r.id === param) : null;
@@ -53,7 +64,8 @@ function render() {
   main.innerHTML = views[view]();
   if (view === 'carga') bindSheet(param && all.find((r) => r.id === param));
   if (view === 'api' && !readApiLog()) runApiCheck(false);
-  main.focus({ preventScroll: true });
+  if (!keepFocus) main.focus({ preventScroll: true });
+  document.querySelector('[data-nav] a[aria-current]')?.scrollIntoView({ block: 'nearest', inline: 'center' });
   if (repo.warning) say(repo.warning);
 }
 
@@ -185,6 +197,19 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') { const box = main.querySelector('[data-confirm]'); if (box && !box.hidden) box.hidden = true; }
 });
 
-window.addEventListener('hashchange', render);
+window.addEventListener('hashchange', () => render());
+// Redibuja los gráficos cuando cambia el ancho disponible (rotar el teléfono, redimensionar la ventana).
+let resizeTimer;
+let lastMainWidth = main.clientWidth;
+new ResizeObserver(() => {
+  if (main.clientWidth === lastMainWidth) return;
+  lastMainWidth = main.clientWidth;
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    if (route().view !== 'resumen') return;
+    const l = chartLayout();
+    if (`${l.chartW}|${l.wideW}` !== lastLayout) render({ keepFocus: true });
+  }, 150);
+}).observe(main);
 installTooltip(main);
 render();

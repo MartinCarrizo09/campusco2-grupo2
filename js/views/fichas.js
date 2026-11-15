@@ -9,11 +9,11 @@ export function renderFichas(all) {
     const res = calculate(r);
     return `<tr>
       <td><i class="swatch" style="background:${colorFor(all, r.id)}"></i><strong>${esc(r.building)}</strong><br><small>${esc(r.sector)} · ${esc(r.site)}</small></td>
-      <td class="num">${r.year}</td>
-      <td><span class="tag">Hipotético</span><br><small>${esc(AREA_ORIGINS[r.areaOrigin])}</small></td>
-      <td class="num">${fmt(res.area, 0)}</td>
-      <td class="num">${fmt(res.m3, 0)}</td>
-      <td class="num">${fmt(res.tCO2e, 2)}</td>
+      <td class="num" data-label="Año">${r.year}</td>
+      <td data-label="Tipo de dato"><span class="tag">Hipotético</span><br><small>${esc(AREA_ORIGINS[r.areaOrigin])}</small></td>
+      <td class="num" data-label="Superficie">${fmt(res.area, 0)} m²</td>
+      <td class="num" data-label="Gas">${fmt(res.m3, 0)} m³</td>
+      <td class="num" data-label="Emisiones">${fmt(res.tCO2e, 2)} t CO₂e</td>
       <td class="actions"><a href="#calculo/${encodeURIComponent(r.id)}">Ver cálculo</a><a href="#carga/${encodeURIComponent(r.id)}">Editar</a><button type="button" class="link danger" data-delete="${esc(r.id)}">Eliminar</button></td>
     </tr>`;
   }).join('');
@@ -23,7 +23,7 @@ export function renderFichas(all) {
     <div class="head-actions"><a class="button" href="#carga">Nueva ficha</a><button class="button ghost" type="button" data-export="csv">Exportar CSV</button><button class="button ghost" type="button" data-export="json">Exportar JSON</button></div></header>
   ${all.length === 0 ? '<div class="empty"><p>No hay fichas. Cargá una o restablecé los escenarios iniciales.</p></div>' : `
   <div class="panel table-wrap"><table class="records">
-    <thead><tr><th>Sector</th><th class="num">Año</th><th>Tipo de dato</th><th class="num">m²</th><th class="num">Gas m³</th><th class="num">t CO₂e</th><th><span class="sr-only">Acciones</span></th></tr></thead>
+    <thead><tr><th>Sector</th><th class="num">Año</th><th>Tipo de dato</th><th class="num">Superficie</th><th class="num">Gas</th><th class="num">Emisiones</th><th><span class="sr-only">Acciones</span></th></tr></thead>
     <tbody>${rows}</tbody></table></div>`}
   <div class="confirm" data-confirm hidden><p>¿Eliminar la ficha <strong data-confirm-name></strong>? Esta acción no se puede deshacer.</p><div><button type="button" class="button ghost" data-confirm-cancel>Cancelar</button><button type="button" class="button danger" data-confirm-ok>Eliminar</button></div></div>
   <p class="reset-row"><button type="button" class="link" data-reset>Restablecer los tres escenarios iniciales</button></p>`;
@@ -32,14 +32,16 @@ export function renderFichas(all) {
 const field = (name, label, value, attrs = '', hint = '') => `
   <label class="field" data-field="${name}"><span>${label}</span><input name="${name}" value="${esc(value)}" ${attrs}>${hint ? `<small>${hint}</small>` : ''}<em class="error" data-error="${name}"></em></label>`;
 
+const dec = (v) => (typeof v === 'number' && Number.isFinite(v) ? String(v).replace('.', ',') : v ?? '');
+
 function roomRow(room = { name: '', length: '', width: '' }) {
   return `<div class="room" data-room>
-    <input aria-label="Nombre del ambiente" name="roomName" value="${esc(room.name)}" placeholder="Aula 1">
-    <input aria-label="Largo (m)" name="roomLength" inputmode="decimal" value="${esc(room.length)}" placeholder="Largo m">
-    <span aria-hidden="true">×</span>
-    <input aria-label="Ancho (m)" name="roomWidth" inputmode="decimal" value="${esc(room.width)}" placeholder="Ancho m">
-    <output data-room-area></output>
-    <button type="button" class="link danger" data-room-remove aria-label="Quitar ambiente">Quitar</button></div>`;
+    <label class="room-name"><span>Ambiente</span><input name="roomName" value="${esc(room.name)}" placeholder="Aula 1"></label>
+    <label class="room-len"><span>Largo (m)</span><input name="roomLength" inputmode="decimal" value="${esc(dec(room.length))}" placeholder="8,5"></label>
+    <span class="room-x" aria-hidden="true">×</span>
+    <label class="room-wid"><span>Ancho (m)</span><input name="roomWidth" inputmode="decimal" value="${esc(dec(room.width))}" placeholder="6"></label>
+    <output class="room-area" data-room-area></output>
+    <button type="button" class="link danger room-rm" data-room-remove>Quitar</button></div>`;
 }
 
 export function blankRecord() {

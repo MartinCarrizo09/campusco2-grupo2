@@ -20,8 +20,8 @@ function yGrid(max, x0, x1, yOf, unit, digits = 0) {
 }
 
 /** Barras verticales apiladas. groups: [{label, parts:[{key, value, tip}]}], keys: [{key,label,color}] */
-export function stackedBars({ groups, keys, unit, digits = 0, title }) {
-  const W = 560, H = 260, L = 56, R = 12, T = 30, B = 34;
+export function stackedBars({ groups, keys, unit, digits = 0, title, width = 560 }) {
+  const W = width, H = 260, L = 56, R = 12, T = 30, B = 34;
   const totals = groups.map((g) => g.parts.reduce((a, p) => a + p.value, 0));
   const max = niceMax(Math.max(...totals, 0));
   const band = (W - L - R) / Math.max(groups.length, 1);
@@ -68,14 +68,14 @@ export function compareBars({ items, unit, digits = 0, title, width = 560 }) {
     return `<rect class="mark${it.emphasis ? ' emphasis' : ''}" x="${x}" y="${y}" width="${bw}" height="${Math.max(0, yOf(0) - y)}" rx="4" fill="${it.color}" data-tip="${esc(it.tip)}"/>
       <text class="value" x="${x + bw / 2}" y="${y - 6}" text-anchor="middle">${fmt(it.value, digits)}</text>
       <text class="tick" x="${x + bw / 2}" y="${H - B + 17}" text-anchor="middle">${esc(it.label)}</text>
-      <text class="tick muted" x="${x + bw / 2}" y="${H - B + 31}" text-anchor="middle">${esc(it.sub ?? '')}</text>`;
+      ${band >= 78 ? `<text class="tick muted" x="${x + bw / 2}" y="${H - B + 31}" text-anchor="middle">${esc(it.sub ?? '')}</text>` : ''}`;
   }).join('');
   return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(title)}">${yGrid(max, L, W - R, yOf, unit, digits)}<line class="axis" x1="${L}" x2="${W - R}" y1="${yOf(0)}" y2="${yOf(0)}"/>${bars}</svg>`;
 }
 
 /** Línea con marcadores (una serie). points: [{label, value, tip}] */
-export function lineChart({ points, unit, digits = 2, title, color = 'var(--series-1)' }) {
-  const W = 560, H = 250, L = 56, R = 24, T = 30, B = 34;
+export function lineChart({ points, unit, digits = 2, title, color = 'var(--series-1)', width = 560 }) {
+  const W = width, H = 250, L = 56, R = 24, T = 30, B = 34;
   const max = niceMax(Math.max(...points.map((p) => p.value), 0));
   const step = (W - L - R) / Math.max(points.length - 1, 1);
   const yOf = (v) => T + (H - T - B) * (1 - v / max);
@@ -95,8 +95,8 @@ export function legend(keys) {
   return `<ul class="legend">${keys.map((k) => `<li><i class="swatch" style="background:${k.color}"></i>${esc(k.label)}</li>`).join('')}</ul>`;
 }
 
-export function dataTable(headers, rows) {
-  return `<details class="table-view"><summary>Ver como tabla</summary><div class="table-wrap"><table>
+export function dataTable(headers, rows, open = false) {
+  return `<details class="table-view"${open ? ' open' : ''}><summary>Ver como tabla</summary><div class="table-wrap"><table>
     <thead><tr>${headers.map((h) => `<th>${esc(h)}</th>`).join('')}</tr></thead>
     <tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="num"' : ''}>${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody>
   </table></div></details>`;
