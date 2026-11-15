@@ -63,7 +63,7 @@ export function renderRelevamiento() {
     <tr><td>Horario de uso de los sectores</td><td>Calendario académico y de bedelía</td><td>Bedelía · Secretaría Académica</td><td><span class="tag warn">Sin dato por sector</span></td><td>10 h por día hábil, mayo a septiembre.</td></tr>
     <tr><td>Clima exterior</td><td>Servicio Meteorológico Nacional</td><td>SMN</td><td><span class="tag ok">Disponible</span> Normales 1991–2020</td><td>Promedio, mínimos y máximos mensuales.</td></tr>
     <tr><td>Poder calorífico del gas</td><td>Balance Energético Nacional</td><td>Secretaría de Energía</td><td><span class="tag ok">Disponible</span> 8.300 kcal/m³</td><td>${fmt(PCI_GAS_KWH_M3, 4)} kWh/m³.</td></tr>
-    <tr><td>Factor de emisión</td><td>Material de la asignatura · API compartida</td><td>Equipo docente · Green Software Foundation</td><td><span class="tag ok">Disponible</span> 0,350 t CO₂e/MWh · la API no entrega datos</td><td>Factor energético de Argentina 2026.</td></tr>
+    <tr><td>Factor de emisión</td><td>Material de la asignatura · API compartida</td><td>Asignatura Green Software · Green Software Foundation</td><td><span class="tag ok">Disponible</span> 0,350 t CO₂e/MWh · la API no entrega datos</td><td>Factor energético de Argentina 2026.</td></tr>
     </tbody></table></div></section>
   <div class="grid-2">
     <section class="panel"><h2>Calidad y limitaciones</h2><ul class="bullets">
