@@ -80,7 +80,7 @@ export function renderResumen(all, f, layout = { chartW: 560, wideW: 1040 }) {
   <header class="page-head">
     <div><p class="eyebrow">Combustibles y energía térmica · Alcance 1 · Período anual ${year}</p>
     <h1>Huella de la calefacción a gas</h1>
-    <p class="lede">Tres sectores de Ciudad Universitaria modelados como <strong>escenarios hipotéticos</strong>: no existen registros públicos de consumo de gas por edificio, así que el volumen se estima con superficie, calendario y clima.</p></div>
+    <p class="lede">Tres sectores de la UTN FRC modelados como <strong>escenarios hipotéticos</strong>: no existen registros públicos de consumo de gas por edificio, así que el volumen se estima con superficie, calendario y clima.</p></div>
     <div class="head-actions"><a class="button" href="#carga">Nueva ficha</a><button class="button ghost" type="button" data-export="csv">Exportar CSV</button></div>
   </header>
   ${filtersBar(years, { ...f, year })}

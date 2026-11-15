@@ -102,7 +102,7 @@ test('repositorio: guardar, editar, eliminar y restablecer', () => {
   assert.equal(repo.findById('nueva').sector, 'Primer piso');
   repo.remove('nueva');
   assert.equal(repo.findAll().length, 3);
-  mem.set('campusco2.g2.fichas.v1', '{roto');
+  mem.set('campusco2.g2.fichas.v2', '{roto');
   const recovered = createRepository(storage);
   assert.equal(recovered.findAll().length, 3);
   assert.match(recovered.warning, /dañados/);

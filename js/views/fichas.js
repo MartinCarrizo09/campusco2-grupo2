@@ -46,7 +46,7 @@ function roomRow(room = { name: '', length: '', width: '' }) {
 
 export function blankRecord() {
   return {
-    id: '', site: 'Ciudad Universitaria', building: '', sector: '', year: 2026, areaOrigin: 'hipotetica', rooms: [], area: '',
+    id: '', site: 'UTN FRC', building: '', sector: '', year: 2026, areaOrigin: 'hipotetica', rooms: [], area: '',
     months: [...DEFAULTS.months], hoursPerDay: DEFAULTS.hoursPerDay, daysPerWeek: DEFAULTS.daysPerWeek, balanceTemp: DEFAULTS.balanceTemp,
     lossCoef: DEFAULTS.lossCoef, efficiency: DEFAULTS.efficiency, pci: Number(DEFAULTS.pci.toFixed(4)), climate: DEFAULTS.climate,
     heatPumpCop: DEFAULTS.heatPumpCop, source: '', notes: '',

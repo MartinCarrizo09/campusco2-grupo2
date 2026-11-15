@@ -93,7 +93,7 @@ export const SENSITIVITY = Object.freeze({
 export const SEED_RECORDS = Object.freeze([
   Object.freeze({
     id: 'maders-2p-2026',
-    site: 'Ciudad Universitaria',
+    site: 'UTN FRC',
     building: 'Edificio Maders',
     sector: 'Segundo piso (ampliación)',
     year: 2026,
@@ -114,7 +114,7 @@ export const SEED_RECORDS = Object.freeze([
   }),
   Object.freeze({
     id: 'central-2p-2026',
-    site: 'Ciudad Universitaria',
+    site: 'UTN FRC',
     building: 'Edificio Central',
     sector: 'Segundo piso',
     year: 2026,
@@ -135,7 +135,7 @@ export const SEED_RECORDS = Object.freeze([
   }),
   Object.freeze({
     id: 'labsis-2026',
-    site: 'Ciudad Universitaria',
+    site: 'UTN FRC',
     building: 'Laboratorio de Sistemas (LabSis)',
     sector: 'Seis salas de práctica',
     year: 2026,

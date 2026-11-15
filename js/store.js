@@ -1,7 +1,7 @@
 // Repositorio de fichas sobre localStorage (findAll, findById, save, remove, reset).
 import { SEED_RECORDS } from './data.js';
 
-const KEY = 'campusco2.g2.fichas.v1';
+const KEY = 'campusco2.g2.fichas.v2';
 const API_LOG_KEY = 'campusco2.g2.api.v1';
 
 function safeStorage() {
