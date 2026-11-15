@@ -1,0 +1,9 @@
+{
+  "name": "campusco2-grupo2",
+  "private": true,
+  "type": "module",
+  "description": "CampusCO₂ · Combustibles y energía térmica. Green Software 4K4 2026, Grupo 2, UTN FRC.",
+  "scripts": {
+    "test": "node --test tests/domain.test.js"
+  }
+}
