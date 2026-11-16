@@ -1,0 +1,30 @@
+{
+  "api": "CampusCO2 · API central",
+  "version": "1.0.0",
+  "recurso": "edificios",
+  "total": 3,
+  "generado": "2026-11-15T12:00:00-03:00",
+  "datos": [
+    {
+      "id": "maders",
+      "universidadId": "utn-frc",
+      "nombre": "Edificio Maders",
+      "superficiePublicadaM2": 540,
+      "fuenteId": "boletin-103"
+    },
+    {
+      "id": "central",
+      "universidadId": "utn-frc",
+      "nombre": "Edificio Central",
+      "superficiePublicadaM2": null,
+      "fuenteId": "boletin-103"
+    },
+    {
+      "id": "labsis",
+      "universidadId": "utn-frc",
+      "nombre": "Laboratorio de Sistemas (LabSis)",
+      "superficiePublicadaM2": null,
+      "fuenteId": null
+    }
+  ]
+}

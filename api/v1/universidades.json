@@ -1,0 +1,16 @@
+{
+  "api": "CampusCO2 · API central",
+  "version": "1.0.0",
+  "recurso": "universidades",
+  "total": 1,
+  "generado": "2026-11-15T12:00:00-03:00",
+  "datos": [
+    {
+      "id": "utn-frc",
+      "nombre": "Universidad Tecnológica Nacional · Facultad Regional Córdoba",
+      "sigla": "UTN FRC",
+      "ciudad": "Córdoba",
+      "pais": "AR"
+    }
+  ]
+}

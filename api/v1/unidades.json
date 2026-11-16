@@ -1,0 +1,47 @@
+{
+  "api": "CampusCO2 · API central",
+  "version": "1.0.0",
+  "recurso": "unidades",
+  "total": 6,
+  "generado": "2026-11-15T12:00:00-03:00",
+  "datos": [
+    {
+      "id": "m3",
+      "nombre": "metro cúbico",
+      "magnitud": "volumen"
+    },
+    {
+      "id": "kWh",
+      "nombre": "kilovatio hora",
+      "magnitud": "energía"
+    },
+    {
+      "id": "m2",
+      "nombre": "metro cuadrado",
+      "magnitud": "superficie"
+    },
+    {
+      "id": "kgCO2e",
+      "nombre": "kilogramo de CO₂ equivalente",
+      "magnitud": "emisiones"
+    },
+    {
+      "id": "tCO2e",
+      "nombre": "tonelada de CO₂ equivalente",
+      "magnitud": "emisiones",
+      "conversion": {
+        "a": "kgCO2e",
+        "factor": 1000
+      }
+    },
+    {
+      "id": "pci-gas-natural",
+      "nombre": "poder calorífico inferior del gas natural",
+      "magnitud": "conversión",
+      "valor": 9.6529,
+      "unidad": "kWh/m3",
+      "base": "8.300 kcal/m3 × 4,1868 ÷ 3.600",
+      "fuenteId": "ben"
+    }
+  ]
+}

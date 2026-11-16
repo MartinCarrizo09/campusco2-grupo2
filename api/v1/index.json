@@ -1,0 +1,52 @@
+{
+  "api": "CampusCO2 · API central",
+  "version": "1.0.0",
+  "descripcion": "Catálogos y factores para el inventario de emisiones de la UTN FRC. Versión simulada publicada junto al módulo.",
+  "endpoints": [
+    {
+      "metodo": "GET",
+      "ruta": "/api/v1/universidades",
+      "archivo": "universidades.json"
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/v1/edificios",
+      "archivo": "edificios.json"
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/v1/periodos",
+      "archivo": "periodos.json"
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/v1/dimensiones",
+      "archivo": "dimensiones.json"
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/v1/unidades",
+      "archivo": "unidades.json"
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/v1/fuentes",
+      "archivo": "fuentes.json"
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/v1/factores-emision",
+      "archivo": "factores-emision.json"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/v1/datos-actividad",
+      "respuesta": "201 Created"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/api/v1/resultados-emisiones",
+      "respuesta": "201 Created"
+    }
+  ]
+}

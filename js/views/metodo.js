@@ -1,5 +1,5 @@
 // Vistas Medición (componente 1) y Relevamiento (componente 3).
-import { CLIMATE, EMISSION_FACTOR, MONTHS, PCI_GAS_KWH_M3, SOURCES } from '../data.js';
+import { CLIMATE, getEmissionFactor, MONTHS, PCI_GAS_KWH_M3, SOURCES } from '../data.js';
 import { esc, fmt } from '../utils.js';
 
 const link = (s) => (s.url ? `<a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.label)} ↗</a>` : esc(s.label));
@@ -29,7 +29,7 @@ export function renderMedicion() {
       <tr><td>Pérdidas globales L</td><td>W/(m²·K)</td><td>2,0</td></tr>
       <tr><td>Rendimiento de caldera η</td><td>%</td><td>85</td></tr>
       <tr><td>Poder calorífico inferior</td><td>kWh/m³</td><td>${fmt(PCI_GAS_KWH_M3, 4)}</td></tr>
-      <tr><td>Factor de emisión</td><td>kg CO₂e/kWh</td><td>${fmt(EMISSION_FACTOR.value, 3)}</td></tr>
+      <tr><td>Factor de emisión</td><td>kg CO₂e/kWh</td><td>${fmt(getEmissionFactor().value, 3)}</td></tr>
       </tbody></table></div></section>
   </div>
   <section class="panel"><h2>Método de grados-hora</h2>
@@ -39,9 +39,9 @@ export function renderMedicion() {
       <li><b>Calor útil</b><span>A × L × grados-hora ÷ 1.000</span><em>kWh</em></li>
       <li><b>Energía del gas</b><span>calor útil ÷ η</span><em>kWh</em></li>
       <li><b>Volumen</b><span>energía del gas ÷ PCI</span><em>m³</em></li>
-      <li class="total"><b>Emisiones</b><span>energía del gas × ${fmt(EMISSION_FACTOR.value, 3)} kg CO₂e/kWh</span><em>kg CO₂e</em></li>
+      <li class="total"><b>Emisiones</b><span>energía del gas × ${fmt(getEmissionFactor().value, 3)} kg CO₂e/kWh</span><em>kg CO₂e</em></li>
     </ol>
-    <p class="note">El factor ${EMISSION_FACTOR.display} es el factor energético de Argentina para 2025–2026. Lo aplicamos a la energía final que consume la calefacción para expresar todas las dimensiones del campus en la misma base. El factor específico de combustión del gas (IPCC 2006) da 0,202 kg CO₂/kWh; frente a él, nuestro resultado es una cota superior conservadora.</p>
+    <p class="note">El factor ${getEmissionFactor().display} es el factor energético de Argentina para 2025–2026. Lo aplicamos a la energía final que consume la calefacción para expresar todas las dimensiones del campus en la misma base. El factor específico de combustión del gas (IPCC 2006) da 0,202 kg CO₂/kWh; frente a él, nuestro resultado es una cota superior conservadora.</p>
   </section>
   <div class="grid-2">
     <section class="panel"><h2>Clima de referencia</h2><p class="muted">Temperatura media mensual, Córdoba Observatorio (°C).</p><div class="table-wrap"><table>
@@ -63,7 +63,7 @@ export function renderRelevamiento() {
     <tr><td>Horario de uso de los sectores</td><td>Calendario académico y de bedelía</td><td>Bedelía · Secretaría Académica</td><td><span class="tag warn">Sin dato por sector</span></td><td>10 h por día hábil, mayo a septiembre.</td></tr>
     <tr><td>Clima exterior</td><td>Servicio Meteorológico Nacional</td><td>SMN</td><td><span class="tag ok">Disponible</span> Normales 1991–2020</td><td>Promedio, mínimos y máximos mensuales.</td></tr>
     <tr><td>Poder calorífico del gas</td><td>Balance Energético Nacional</td><td>Secretaría de Energía</td><td><span class="tag ok">Disponible</span> 8.300 kcal/m³</td><td>${fmt(PCI_GAS_KWH_M3, 4)} kWh/m³.</td></tr>
-    <tr><td>Factor de emisión</td><td>Material de la asignatura · API compartida</td><td>Asignatura Green Software · Green Software Foundation</td><td><span class="tag ok">Disponible</span> 0,350 t CO₂e/MWh · la API no entrega datos</td><td>Factor energético de Argentina 2026.</td></tr>
+    <tr><td>Factor de emisión</td><td>API central · GET /factores-emision</td><td>Asignatura Green Software</td><td><span class="tag ok">Disponible</span> 0,350 t CO₂e/MWh</td><td>Factor energético de Argentina 2026.</td></tr>
     </tbody></table></div></section>
   <div class="grid-2">
     <section class="panel"><h2>Calidad y limitaciones</h2><ul class="bullets">

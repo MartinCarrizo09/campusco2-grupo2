@@ -4,7 +4,9 @@ import { aggregate, calculate, reductionPlan, roomsArea, scenarios, usageDays } 
 import { EMISSION_FACTOR, PCI_GAS_KWH_M3, SEED_RECORDS } from '../js/data.js';
 import { validateRecord } from '../js/validation.js';
 import { createRepository } from '../js/store.js';
-import { checkApi, decide, exchangePayload } from '../js/api.js';
+import { checkApi, exchangePayload, loadFactor, sendRecords, simulatePost } from '../js/api.js';
+import { readFileSync } from 'node:fs';
+import { getEmissionFactor, setEmissionFactor } from '../js/data.js';
 import { csvCell } from '../js/utils.js';
 
 const maders = SEED_RECORDS.find((r) => r.id === 'maders-2p-2026');
@@ -108,17 +110,46 @@ test('repositorio: guardar, editar, eliminar y restablecer', () => {
   assert.match(recovered.warning, /dañados/);
 });
 
-test('API: con errores 500 se usa el factor local', async () => {
-  const fakeFetch = async (url) => ({ ok: url.endsWith('/health'), status: url.endsWith('/health') ? 200 : 500, text: async () => (url.endsWith('/health') ? 'Healthy' : '{"title":"InternalServerError"}') });
-  const res = await checkApi({ force: true, fetchImpl: fakeFetch });
-  assert.equal(res.decision.service, 'en línea');
-  assert.equal(res.decision.data, 'sin datos');
-  assert.equal(res.decision.factor.value, 0.35);
-  assert.equal(decide([{ id: 'health', ok: false }]).service, 'sin respuesta');
+// fetch de prueba que sirve los JSON reales de api/v1
+const apiFetch = async (url) => {
+  const file = new URL(url).pathname.split('/').pop();
+  try {
+    const body = readFileSync(new URL(`../api/v1/${file}`, import.meta.url), 'utf8');
+    return { ok: true, status: 200, json: async () => JSON.parse(body) };
+  } catch {
+    return { ok: false, status: 404, json: async () => ({}) };
+  }
+};
+
+test('API central: los 7 endpoints GET responden con datos', async () => {
+  const res = await checkApi({ force: true, fetchImpl: apiFetch });
+  assert.equal(res.results.length, 7);
+  assert.ok(res.results.every((r) => r.ok && r.status === 200 && r.count > 0));
+  assert.equal(res.factor.value, 0.35);
 });
 
-test('archivo de intercambio incluye totales y fichas', () => {
-  const p = exchangePayload(SEED_RECORDS, aggregate(SEED_RECORDS));
+test('API central: el factor que devuelve la API es el que usa el cálculo', async () => {
+  const f = await loadFactor(apiFetch);
+  assert.equal(f.id, 'fe-energia-ar-2026');
+  assert.equal(getEmissionFactor().value, 0.35);
+  assert.match(getEmissionFactor().source, /API central/);
+  setEmissionFactor({ value: 0.5 });
+  close(calculate(maders).kgCO2e, (5505.84 / 0.85) * 0.5, 1e-6);
+  setEmissionFactor({ value: 0.35 });
+});
+
+test('API central: el envío devuelve 201 por dato de actividad y por resultado', () => {
+  const sent = sendRecords(aggregate(SEED_RECORDS), getEmissionFactor());
+  assert.equal(sent.length, 6);
+  assert.ok(sent.every((s) => s.status === 201 && /^(act|res)-\d{4}$/.test(s.id)));
+  const bad = simulatePost('datos-actividad', { fichaId: 'x', cantidad: -1 }, 1);
+  assert.equal(bad.status, 422);
+  assert.ok(bad.body.faltan.includes('edificio'));
+  assert.ok(bad.body.invalidos.includes('cantidad'));
+});
+
+test('archivo de intercambio incluye totales, factor y fichas', () => {
+  const p = exchangePayload(SEED_RECORDS, aggregate(SEED_RECORDS), getEmissionFactor());
   assert.equal(p.records.length, 3);
   assert.equal(p.factor.value, 0.35);
   assert.ok(p.totals.kgCO2e > 0);

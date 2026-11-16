@@ -1,6 +1,6 @@
 // Vista Resumen: indicadores y gráficos (visualización del componente 7).
 import { aggregate, reductionPlan } from '../calc.js';
-import { CLIMATE_LABELS, EMISSION_FACTOR, MONTHS, SENSITIVITY, TREE_T_CO2_YEAR } from '../data.js';
+import { CLIMATE_LABELS, getEmissionFactor, MONTHS, SENSITIVITY, TREE_T_CO2_YEAR } from '../data.js';
 import { SERIES, compareBars, dataTable, legend, lineChart, shareBars, stackedBars } from '../charts.js';
 import { esc, fmt } from '../utils.js';
 
@@ -64,7 +64,7 @@ export function renderResumen(all, f, layout = { chartW: 560, wideW: 1040 }) {
     title: 'Gas natural frente a bomba de calor', unit: 't CO₂e', digits: 2,
     items: [
       { label: 'Gas natural', sub: `η ${s.efficiency} %`, value: agg.tCO2e, color: 'var(--series-2)', tip: `Caldera a gas: ${fmt(agg.gasKWh, 0)} kWh → ${fmt(agg.tCO2e, 2)} t CO₂e` },
-      { label: 'Bomba de calor', sub: 'COP 3', value: agg.heatPumpKg / 1000, color: 'var(--series-3)', tip: `Bomba de calor: ${fmt(agg.heatPumpKg / EMISSION_FACTOR.value, 0)} kWh eléctricos → ${fmt(agg.heatPumpKg / 1000, 2)} t CO₂e` },
+      { label: 'Bomba de calor', sub: 'COP 3', value: agg.heatPumpKg / 1000, color: 'var(--series-3)', tip: `Bomba de calor: ${fmt(agg.heatPumpKg / getEmissionFactor().value, 0)} kWh eléctricos → ${fmt(agg.heatPumpKg / 1000, 2)} t CO₂e` },
     ],
   });
 
@@ -85,7 +85,7 @@ export function renderResumen(all, f, layout = { chartW: 560, wideW: 1040 }) {
   </header>
   ${filtersBar(years, { ...f, year })}
   <section class="kpis" aria-label="Indicadores principales">
-    <article class="kpi hero"><span>Emisiones del período</span><strong>${fmt(agg.tCO2e, 2)}<small> t CO₂e</small></strong><p>${fmt(agg.kgCO2e, 0)} kg · factor ${EMISSION_FACTOR.display}</p></article>
+    <article class="kpi hero"><span>Emisiones del período</span><strong>${fmt(agg.tCO2e, 2)}<small> t CO₂e</small></strong><p>${fmt(agg.kgCO2e, 0)} kg · factor ${getEmissionFactor().display}</p></article>
     <article class="kpi"><span>Gas natural estimado</span><strong>${fmt(agg.m3, 0)}<small> m³</small></strong><p>${fmt(agg.gasKWh, 0)} kWh de combustible</p></article>
     <article class="kpi"><span>Intensidad por superficie</span><strong>${fmt(agg.intensityKgM2, 2)}<small> kg CO₂e/m²</small></strong><p>${fmt(agg.area, 0)} m² calefaccionados</p></article>
     <article class="kpi"><span>Compensación equivalente</span><strong>${fmt(agg.trees, 1)}<small> árboles</small></strong><p>adultos, a ${fmt(TREE_T_CO2_YEAR, 2)} t CO₂/año cada uno</p></article>

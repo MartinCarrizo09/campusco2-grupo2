@@ -1,5 +1,5 @@
 // Vista Documentación (componentes 2 y 8): modelo de datos, arquitectura, supuestos y uso de IA.
-import { EMISSION_FACTOR } from '../data.js';
+import { getEmissionFactor } from '../data.js';
 
 const ENTITIES = [
   ['SEDE', 40, 30, ['id', 'nombre']],
@@ -47,7 +47,7 @@ export function renderDocs() {
     <tr><td>cop_bomba · clima</td><td>decimal · enumerado</td><td>1,5–6 · típico, frío o templado</td></tr>
     <tr><td>fuente · notas</td><td>texto</td><td>≤ 300 · ≤ 600 caracteres</td></tr>
     <tr><td>Ambiente</td><td>largo_m · ancho_m</td><td>decimal</td><td>0,5–200 m por lado</td></tr>
-    <tr><td>Factor</td><td>valor · unidad</td><td>decimal · texto</td><td>${EMISSION_FACTOR.value} ${EMISSION_FACTOR.unit}</td></tr>
+    <tr><td>Factor</td><td>valor · unidad</td><td>decimal · texto</td><td>${getEmissionFactor().value} ${getEmissionFactor().unit}</td></tr>
     <tr><td>Resultado</td><td>grados_hora · kWh · m³ · kg CO₂e</td><td>decimal</td><td>Calculado, no editable</td></tr>
     <tr><td>Resultado mensual</td><td>mes · días · horas · T ext · K·h</td><td>decimal</td><td>Uno por mes de la temporada</td></tr>
     </tbody></table></div></section>
@@ -55,7 +55,7 @@ export function renderDocs() {
     <section class="panel"><h2>Arquitectura</h2><div class="arch">
       <span>Vistas HTML + CSS</span><b>↓</b><span>app.js · navegación y eventos</span><b>↓</b>
       <span>calc.js · validation.js<br><small>funciones puras, con pruebas</small></span><b>↓</b>
-      <span>store.js · localStorage<br><small>repositorio de fichas</small></span><b>↔</b><span>api.js · API compartida<br><small>consulta bajo demanda, caché 24 h</small></span></div>
+      <span>store.js · localStorage<br><small>repositorio de fichas</small></span><b>↔</b><span>api.js · API central /api/v1<br><small>catálogos y factor por GET, envíos por POST</small></span></div>
       <p class="note">HTML, CSS y JavaScript sin frameworks ni dependencias. Sin fuentes tipográficas remotas ni imágenes: los gráficos son SVG generados en el navegador. La página completa pesa menos de 100 kB.</p></section>
     <section class="panel"><h2>Supuestos del escenario</h2><ul class="bullets">
       <li>No hay registros públicos de consumo de gas por edificio: todas las fichas son escenarios hipotéticos.</li>
@@ -63,7 +63,7 @@ export function renderDocs() {
       <li>Calefacción de mayo a septiembre, 10 h por día hábil, sin descontar feriados.</li>
       <li>Balance a 18 °C y pérdidas globales de 2,0 W/(m²·K) por m² de piso.</li>
       <li>Caldera a gas natural con rendimiento del 85 % sobre PCI.</li>
-      <li>Factor energético constante de ${EMISSION_FACTOR.display} para todo el período.</li>
+      <li>Factor energético constante de ${getEmissionFactor().display} para todo el período.</li>
     </ul></section>
     <section class="panel"><h2>Uso de IA y validación</h2><ul class="bullets">
       <li>Usamos IA para revisar la estructura del código, proponer validaciones y redactar textos de ayuda.</li>

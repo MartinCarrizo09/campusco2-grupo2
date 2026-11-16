@@ -1,6 +1,6 @@
 // Vista Cálculo: trazabilidad completa de una ficha (componente 6).
 import { calculate, scenarios } from '../calc.js';
-import { AREA_ORIGINS, CLIMATE_LABELS, EMISSION_FACTOR, IPCC_GAS_KG_PER_KWH, MONTH_NAMES, TREE_T_CO2_YEAR } from '../data.js';
+import { AREA_ORIGINS, CLIMATE_LABELS, getEmissionFactor, IPCC_GAS_KG_PER_KWH, MONTH_NAMES, TREE_T_CO2_YEAR } from '../data.js';
 import { esc, fmt } from '../utils.js';
 
 export function renderCalculo(all, id) {
@@ -26,7 +26,7 @@ export function renderCalculo(all, id) {
       <div><dt>Pérdidas globales</dt><dd>${fmt(rec.lossCoef, 2)} W/(m²·K)</dd></div>
       <div><dt>Rendimiento</dt><dd>${fmt(rec.efficiency, 0)} %</dd></div>
       <div><dt>PCI</dt><dd>${fmt(rec.pci, 4)} kWh/m³</dd></div>
-      <div><dt>Factor de emisión</dt><dd>${EMISSION_FACTOR.display} = ${fmt(EMISSION_FACTOR.value, 3)} ${EMISSION_FACTOR.unit}</dd></div>
+      <div><dt>Factor de emisión</dt><dd>${getEmissionFactor().display} = ${fmt(getEmissionFactor().value, 3)} ${getEmissionFactor().unit}<br><small>${esc(getEmissionFactor().source)}</small></dd></div>
       <div><dt>Respaldo</dt><dd>${esc(rec.source) || '—'}${rec.notes ? `<br><small>${esc(rec.notes)}</small>` : ''}</dd></div>
     </dl></section>
     <section class="panel"><h2>Secuencia de cálculo</h2><ol class="formula">
@@ -34,7 +34,7 @@ export function renderCalculo(all, id) {
       <li><b>Calor útil</b><span>${fmt(res.area, 1)} m² × ${fmt(rec.lossCoef, 2)} W/(m²·K) × ${fmt(res.degreeHours, 0)} K·h ÷ 1.000</span><em>${fmt(res.usefulKWh, 2)} kWh</em></li>
       <li><b>Energía del gas</b><span>${fmt(res.usefulKWh, 2)} kWh ÷ ${fmt(rec.efficiency / 100, 2)}</span><em>${fmt(res.gasKWh, 2)} kWh</em></li>
       <li><b>Volumen</b><span>${fmt(res.gasKWh, 2)} kWh ÷ ${fmt(rec.pci, 4)} kWh/m³</span><em>${fmt(res.m3, 2)} m³</em></li>
-      <li class="total"><b>Emisiones</b><span>${fmt(res.gasKWh, 2)} kWh × ${fmt(EMISSION_FACTOR.value, 3)} kg CO₂e/kWh</span><em>${fmt(res.kgCO2e, 1)} kg = ${fmt(res.tCO2e, 3)} t CO₂e</em></li>
+      <li class="total"><b>Emisiones</b><span>${fmt(res.gasKWh, 2)} kWh × ${fmt(getEmissionFactor().value, 3)} kg CO₂e/kWh</span><em>${fmt(res.kgCO2e, 1)} kg = ${fmt(res.tCO2e, 3)} t CO₂e</em></li>
     </ol>
     <p class="note">Control manual con ${MONTH_NAMES[july.month - 1].toLowerCase()}: ${july.days} días × ${fmt(rec.hoursPerDay, 0)} h = ${fmt(july.hours, 0)} h; ${fmt(rec.balanceTemp, 1)} − ${fmt(july.outdoor, 1)} = ${fmt(july.deltaT, 1)} °C; ${fmt(july.hours, 0)} × ${fmt(july.deltaT, 1)} = ${fmt(july.degreeHours, 0)} K·h.</p></section>
   </div>

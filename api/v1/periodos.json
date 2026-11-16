@@ -1,0 +1,23 @@
+{
+  "api": "CampusCO2 · API central",
+  "version": "1.0.0",
+  "recurso": "periodos",
+  "total": 2,
+  "generado": "2026-11-15T12:00:00-03:00",
+  "datos": [
+    {
+      "id": "2025",
+      "anio": 2025,
+      "desde": "2025-01-01",
+      "hasta": "2025-12-31",
+      "periodicidad": "anual"
+    },
+    {
+      "id": "2026",
+      "anio": 2026,
+      "desde": "2026-01-01",
+      "hasta": "2026-12-31",
+      "periodicidad": "anual"
+    }
+  ]
+}

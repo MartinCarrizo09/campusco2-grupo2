@@ -13,7 +13,7 @@ Green Software · Ingeniería en Sistemas de Información · Curso 4K4 · 2026 �
 | 2. Modelo de datos | Vista **Documentación**: diagrama entidad-relación y diccionario de datos |
 | 3. Relevamiento | Vista **Relevamiento**: matriz de datos, fuentes, responsables, calidad y limitaciones |
 | 4. Módulo de carga | Vistas **Fichas** y **Carga**: alta, edición, eliminación, validaciones, carga por ambientes |
-| 5. Integración con la API | Vista **API**: consulta real a la Carbon Aware WebAPI compartida y decisión sobre el factor |
+| 5. Integración con la API | Vista **API**: GET a la API central `/api/v1` (catálogos y factor de emisión) y envío de fichas por POST |
 | 6. Módulo de cálculo | Vista **Cálculo**: secuencia paso a paso, desglose mensual, sensibilidad y trazabilidad |
 | 7. Visualización | Vista **Resumen**: indicadores, evolución mensual, distribución, escenarios, mitigación y trayectoria 2026–2030 |
 | 8. Documentación | Vista **Documentación**, este README y `docs/` |
@@ -37,7 +37,7 @@ Es un sitio estático: HTML, CSS y JavaScript sin dependencias.
 
 ```bash
 python -m http.server 8000      # y abrir http://localhost:8000
-node --test tests/domain.test.js # 16 pruebas del dominio
+node --test tests/domain.test.js # 18 pruebas del dominio
 ```
 
 Los módulos ES no cargan con `file://`; hace falta un servidor local o GitHub Pages.
@@ -51,7 +51,8 @@ js/data.js            clima SMN, PCI, factor, fichas iniciales y fuentes
 js/calc.js            cálculo puro: grados-hora, kWh, m³, kg CO₂e, escenarios, plan 2026–2030
 js/validation.js      reglas de validación de una ficha
 js/store.js           repositorio sobre localStorage
-js/api.js             cliente de la API compartida (caché 24 h) y archivo de intercambio JSON
+js/api.js             cliente de la API central (GET reales, POST con adaptador) y archivo de intercambio JSON
+api/v1/*.json         API central en versión simulada: universidades, edificios, períodos, dimensiones, unidades, fuentes, factores
 js/charts.js          gráficos SVG con tooltip y tabla equivalente
 js/views/             una función de render por vista
 tests/                pruebas con node:test
@@ -65,4 +66,3 @@ docs/capturas/        capturas de escritorio y móvil
 - Factor energético de Argentina actualizado a 2026: 0,350 t CO₂e/MWh.
 - UTN FRC, Boletín 103 (07/02/2012).
 - IPCC 2006, vol. 2, cap. 2 (control: 56.100 kg CO₂/TJ).
-- Green Software Foundation, Carbon Aware WebAPI.

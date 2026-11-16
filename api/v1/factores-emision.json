@@ -1,0 +1,38 @@
+{
+  "api": "CampusCO2 · API central",
+  "version": "1.0.0",
+  "recurso": "factores-emision",
+  "total": 2,
+  "generado": "2026-11-15T12:00:00-03:00",
+  "datos": [
+    {
+      "id": "fe-energia-ar-2026",
+      "descripcion": "Factor energético de Argentina",
+      "valor": 0.35,
+      "unidad": "kgCO2e/kWh",
+      "equivalente": "0,350 t CO₂e/MWh",
+      "vigenciaDesde": 2025,
+      "vigenciaHasta": 2026,
+      "uso": "cálculo",
+      "dimensiones": [
+        "energia-electrica",
+        "combustibles"
+      ],
+      "fuenteId": "green-2026"
+    },
+    {
+      "id": "fe-gn-ipcc-2006",
+      "descripcion": "Combustión estacionaria de gas natural (valor por defecto)",
+      "valor": 0.202,
+      "unidad": "kgCO2/kWh",
+      "equivalente": "56.100 kg CO₂/TJ",
+      "vigenciaDesde": 2006,
+      "vigenciaHasta": null,
+      "uso": "control",
+      "dimensiones": [
+        "combustibles"
+      ],
+      "fuenteId": "ipcc-2006"
+    }
+  ]
+}

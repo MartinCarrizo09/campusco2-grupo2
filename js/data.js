@@ -29,8 +29,8 @@ export const SOURCES = Object.freeze({
   },
   api: {
     id: 'api',
-    label: 'Carbon Aware WebAPI (Green Software Foundation), instancia compartida del curso',
-    url: 'https://carbon-aware-api.azurewebsites.net/swagger/index.html',
+    label: 'API central CampusCO₂ (/api/v1): catálogos, unidades y factores de emisión',
+    url: 'api/v1/index.json',
   },
 });
 
@@ -64,6 +64,13 @@ export const EMISSION_FACTOR = Object.freeze({
   validTo: 2026,
   source: SOURCES.factor.label,
 });
+
+// Factor activo: arranca con el valor de referencia y se reemplaza por el que devuelve la API central.
+let activeFactor = Object.freeze({ ...EMISSION_FACTOR, id: 'fe-energia-ar-2026' });
+export const getEmissionFactor = () => activeFactor;
+export function setEmissionFactor(factor) {
+  activeFactor = Object.freeze({ ...EMISSION_FACTOR, ...factor });
+}
 
 // Control de orden de magnitud (no se usa en los totales).
 export const IPCC_GAS_KG_PER_KWH = (56100 * 3.6) / 1e6; // 56.100 kg CO₂/TJ → kg CO₂/kWh

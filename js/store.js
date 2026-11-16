@@ -2,7 +2,8 @@
 import { SEED_RECORDS } from './data.js';
 
 const KEY = 'campusco2.g2.fichas.v2';
-const API_LOG_KEY = 'campusco2.g2.api.v1';
+const API_LOG_KEY = 'campusco2.g2.api.v2';
+const OUTBOX_KEY = 'campusco2.g2.envios.v1';
 
 function safeStorage() {
   try {
@@ -65,6 +66,20 @@ export function readApiLog(storage = safeStorage()) {
 
 export function writeApiLog(entry, storage = safeStorage()) {
   try { storage?.setItem(API_LOG_KEY, JSON.stringify(entry)); } catch { /* registro opcional */ }
+}
+
+export function readOutbox(storage = safeStorage()) {
+  try {
+    const raw = storage?.getItem(OUTBOX_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+export function writeOutbox(list, storage = safeStorage()) {
+  try { storage?.setItem(OUTBOX_KEY, JSON.stringify(list)); } catch { /* bandeja opcional */ }
 }
 
 export function newId(building, sector, year) {

@@ -1,5 +1,5 @@
 // Cálculo puro (sin DOM ni almacenamiento): grados-hora → calor útil → energía de gas → m³ → kg CO₂e.
-import { CLIMATE, EMISSION_FACTOR, IPCC_GAS_KG_PER_KWH, SENSITIVITY, TREE_T_CO2_YEAR } from './data.js';
+import { CLIMATE, getEmissionFactor, IPCC_GAS_KG_PER_KWH, SENSITIVITY, TREE_T_CO2_YEAR } from './data.js';
 
 const WEEKDAY_SETS = Object.freeze({ 5: [1, 2, 3, 4, 5], 6: [1, 2, 3, 4, 5, 6], 7: [0, 1, 2, 3, 4, 5, 6] });
 
@@ -29,7 +29,7 @@ export function calculate(record, overrides = {}) {
   const area = effectiveArea(r);
   const temps = CLIMATE[r.climate] ?? CLIMATE.mean;
   const eta = r.efficiency / 100;
-  const factor = EMISSION_FACTOR.value;
+  const factor = getEmissionFactor().value;
 
   const monthly = [...r.months].sort((a, b) => a - b).map((month) => {
     const days = usageDays(r.year, month, r.daysPerWeek);
@@ -66,7 +66,7 @@ export function calculate(record, overrides = {}) {
     tCO2e: kgCO2e / 1000,
     intensityKgM2: area > 0 ? kgCO2e / area : 0,
     trees: kgCO2e / 1000 / TREE_T_CO2_YEAR,
-    factor: EMISSION_FACTOR,
+    factor: getEmissionFactor(),
     heatPump: Object.freeze({ cop: r.heatPumpCop, kWh: heatPumpKWh, kgCO2e: heatPumpKg, avoidedKg: kgCO2e - heatPumpKg }),
     ipccControlKg: gasKWh * IPCC_GAS_KG_PER_KWH,
   });

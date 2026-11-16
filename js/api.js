@@ -1,71 +1,123 @@
-// Cliente de la API compartida (Carbon Aware WebAPI). Consulta bajo demanda y guarda el resultado
-// 24 h para no repetir llamadas (criterio Green Software: no consumir red sin necesidad).
-import { EMISSION_FACTOR } from './data.js';
-import { readApiLog, writeApiLog } from './store.js';
+// Cliente de la API central de CampusCO₂.
+// GET: consultas HTTP reales a /api/v1 (catálogos JSON publicados junto al módulo, versión simulada de la API central).
+// POST: el sitio es estático, así que un adaptador valida el cuerpo y devuelve la respuesta 201 con el formato de la API.
+import { setEmissionFactor } from './data.js';
+import { readApiLog, readOutbox, writeApiLog, writeOutbox } from './store.js';
 
-export const API_BASE = 'https://carbon-aware-api.azurewebsites.net';
-const TIMEOUT_MS = 10000;
+const ORIGIN = typeof location !== 'undefined' ? location.href : 'http://localhost/';
+export const API_BASE = new URL('api/v1/', ORIGIN).href;
+export const API_LABEL = '/api/v1';
+const TIMEOUT_MS = 8000;
 const CACHE_MS = 24 * 60 * 60 * 1000;
+export const FACTOR_ID = 'fe-energia-ar-2026';
 
 export const ENDPOINTS = Object.freeze([
-  { id: 'health', method: 'GET', path: '/health', purpose: 'Estado del servicio' },
-  { id: 'locations', method: 'GET', path: '/locations', purpose: 'Regiones con datos de intensidad' },
-  { id: 'bylocation', method: 'GET', path: '/emissions/bylocation?location=eastus', purpose: 'Intensidad de carbono de la red (g CO₂e/kWh)' },
-  { id: 'average', method: 'GET', path: '/emissions/average-carbon-intensity?location=eastus&startTime=2026-07-01T00:00:00Z&endTime=2026-07-02T00:00:00Z', purpose: 'Intensidad promedio en un período' },
+  { id: 'universidades', method: 'GET', path: '/universidades', purpose: 'Universidades del inventario' },
+  { id: 'edificios', method: 'GET', path: '/edificios', purpose: 'Edificios por universidad' },
+  { id: 'periodos', method: 'GET', path: '/periodos', purpose: 'Períodos anuales' },
+  { id: 'dimensiones', method: 'GET', path: '/dimensiones', purpose: 'Dimensiones y alcance de cada una' },
+  { id: 'unidades', method: 'GET', path: '/unidades', purpose: 'Unidades y conversiones (PCI del gas)' },
+  { id: 'fuentes', method: 'GET', path: '/fuentes', purpose: 'Fuentes de datos' },
+  { id: 'factores-emision', method: 'GET', path: '/factores-emision', purpose: 'Factores de emisión vigentes' },
+  { id: 'datos-actividad', method: 'POST', path: '/datos-actividad', purpose: 'Recibe el consumo relevado por ficha' },
+  { id: 'resultados-emisiones', method: 'POST', path: '/resultados-emisiones', purpose: 'Recibe las emisiones calculadas' },
 ]);
 
-async function probe(endpoint, fetchImpl) {
+const defaultFetch = (...args) => globalThis.fetch(...args);
+
+/** GET a un recurso de la API. Devuelve { status, ok, ms, data } sin lanzar excepciones. */
+export async function getResource(id, fetchImpl = defaultFetch) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
-  const started = performance.now();
+  const started = Date.now();
   try {
-    const res = await fetchImpl(API_BASE + endpoint.path, { signal: controller.signal, headers: { Accept: 'application/json, text/plain' } });
-    const body = (await res.text()).slice(0, 240);
-    return { ...endpoint, status: res.status, ok: res.ok, ms: Math.round(performance.now() - started), body };
+    const res = await fetchImpl(`${API_BASE}${id}.json`, { signal: controller.signal, headers: { Accept: 'application/json' } });
+    const body = res.ok ? await res.json() : null;
+    return { status: res.status, ok: res.ok && Array.isArray(body?.datos), ms: Date.now() - started, data: body?.datos ?? [] };
   } catch (err) {
-    const reason = err?.name === 'AbortError' ? `Sin respuesta en ${TIMEOUT_MS / 1000} s` : 'Error de red o bloqueo del navegador';
-    return { ...endpoint, status: 0, ok: false, ms: Math.round(performance.now() - started), body: reason };
+    return { status: 0, ok: false, ms: Date.now() - started, data: [], error: err?.name === 'AbortError' ? 'Sin respuesta' : 'Error de red' };
   } finally {
     clearTimeout(timer);
   }
 }
 
-/** Interpreta las respuestas y decide qué factor usa el módulo. */
-export function decide(results) {
-  const health = results.find((r) => r.id === 'health');
-  const dataOk = results.filter((r) => r.id !== 'health' && r.ok);
-  const service = health?.ok ? 'en línea' : 'sin respuesta';
-  const data = dataOk.length > 0 ? 'con datos' : 'sin datos';
-  return Object.freeze({
-    service,
-    data,
-    factorSource: 'local',
-    summary: dataOk.length > 0
-      ? 'La API devolvió intensidades, pero solo para regiones de Azure (no incluye Argentina) y de electricidad. El módulo mantiene el factor energético de Argentina.'
-      : 'La API no entrega datos de emisiones (los endpoints de datos responden con error). El módulo usa el factor energético de Argentina.',
-    factor: EMISSION_FACTOR,
-  });
-}
-
-export async function checkApi({ force = false, fetchImpl = globalThis.fetch.bind(globalThis) } = {}) {
+/** Consulta todos los endpoints GET y guarda el resultado 24 h (no repetir tráfico sin necesidad). */
+export async function checkApi({ force = false, fetchImpl = defaultFetch } = {}) {
   const cached = readApiLog();
   if (!force && cached && Date.now() - cached.at < CACHE_MS) return { ...cached, cached: true };
-  const results = await Promise.all(ENDPOINTS.map((e) => probe(e, fetchImpl)));
-  const entry = { at: Date.now(), results, decision: decide(results) };
+  const gets = ENDPOINTS.filter((e) => e.method === 'GET');
+  const results = await Promise.all(gets.map(async (e) => {
+    const r = await getResource(e.id, fetchImpl);
+    const first = r.data[0];
+    return { ...e, status: r.status, ok: r.ok, ms: r.ms, count: r.data.length, sample: first ? (first.nombre ?? first.descripcion ?? first.id) : (r.error ?? '') };
+  }));
+  const factor = await loadFactor(fetchImpl);
+  const entry = { at: Date.now(), results, factor };
   writeApiLog(entry);
   return { ...entry, cached: false };
 }
 
-/** Paquete de intercambio que se enviaría a una API central con endpoint de carga. */
-export function exchangePayload(records, aggregateResult) {
+/** Trae el factor de emisión vigente desde la API y lo aplica al cálculo. */
+export async function loadFactor(fetchImpl = defaultFetch) {
+  const r = await getResource('factores-emision', fetchImpl);
+  const f = r.data.find((x) => x.id === FACTOR_ID);
+  if (!f || !Number.isFinite(f.valor) || f.valor <= 0) return null;
+  const factor = { id: f.id, value: f.valor, unit: f.unidad.replace('kgCO2e', 'kg CO₂e'), display: f.equivalente, source: `API central · ${f.id}` };
+  setEmissionFactor(factor);
+  return factor;
+}
+
+const REQUIRED = Object.freeze({
+  'datos-actividad': ['fichaId', 'universidadId', 'edificio', 'sector', 'periodoId', 'dimensionId', 'cantidad', 'unidad', 'energiaKWh'],
+  'resultados-emisiones': ['fichaId', 'datoActividadId', 'factorId', 'kgCO2e'],
+});
+
+/** Adaptador de POST: valida el cuerpo y responde como la API central (201 o 422). */
+export function simulatePost(resource, body, seq) {
+  const missing = (REQUIRED[resource] ?? []).filter((k) => body[k] === undefined || body[k] === null || body[k] === '');
+  const invalid = ['cantidad', 'energiaKWh', 'kgCO2e'].filter((k) => k in body && !(Number.isFinite(body[k]) && body[k] >= 0));
+  if (missing.length || invalid.length) {
+    return { status: 422, ok: false, body: { error: 'Datos inválidos', faltan: missing, invalidos: invalid } };
+  }
+  const prefix = resource === 'datos-actividad' ? 'act' : 'res';
+  return { status: 201, ok: true, body: { id: `${prefix}-${String(seq).padStart(4, '0')}`, recibido: new Date().toISOString(), recurso: resource } };
+}
+
+/** Envía cada ficha (dato de actividad + resultado) a la API central. */
+export function sendRecords(aggregateResult, factor) {
+  const log = readOutbox();
+  let seq = log.length + 1;
+  const sent = [];
+  for (const { record, result } of aggregateResult.results) {
+    const activity = {
+      fichaId: record.id, universidadId: 'utn-frc', edificio: record.building, sector: record.sector,
+      periodoId: String(record.year), dimensionId: 'combustibles', cantidad: Number(result.m3.toFixed(3)), unidad: 'm3',
+      energiaKWh: Number(result.gasKWh.toFixed(3)), superficieM2: result.area, escenario: 'hipotético',
+    };
+    const a = simulatePost('datos-actividad', activity, seq++);
+    sent.push({ at: Date.now(), ficha: `${record.building} · ${record.sector}`, resource: 'datos-actividad', status: a.status, id: a.body.id ?? '—' });
+    if (!a.ok) continue;
+    const res = { fichaId: record.id, datoActividadId: a.body.id, factorId: factor.id ?? FACTOR_ID, kgCO2e: Number(result.kgCO2e.toFixed(3)) };
+    const b = simulatePost('resultados-emisiones', res, seq++);
+    sent.push({ at: Date.now(), ficha: `${record.building} · ${record.sector}`, resource: 'resultados-emisiones', status: b.status, id: b.body.id ?? '—' });
+  }
+  const next = [...log, ...sent].slice(-60);
+  writeOutbox(next);
+  return sent;
+}
+
+/** Archivo de intercambio con el mismo contrato (para descargar los datos enviados). */
+export function exchangePayload(records, aggregateResult, factor) {
   return {
     schema: 'campusco2.combustibles.v1',
+    api: API_LABEL,
     generatedAt: new Date().toISOString(),
     group: 'Green Software 4K4 2026 · Grupo 2',
-    dimension: 'Combustibles y energía térmica',
+    universidadId: 'utn-frc',
+    dimensionId: 'combustibles',
     scope: 'Alcance 1 (combustión de gas natural en calefacción)',
     period: 'anual',
-    factor: EMISSION_FACTOR,
+    factor,
     totals: { m3: aggregateResult.m3, gasKWh: aggregateResult.gasKWh, kgCO2e: aggregateResult.kgCO2e },
     records: aggregateResult.results.map(({ record, result }) => ({
       ...record,

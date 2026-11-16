@@ -1,9 +1,9 @@
 // Composición de la aplicación: navegación por hash, eventos y exportaciones.
 import { aggregate, calculate } from './calc.js';
-import { checkApi, exchangePayload } from './api.js';
+import { checkApi, exchangePayload, loadFactor, sendRecords } from './api.js';
 import { installTooltip } from './charts.js';
-import { MONTH_NAMES } from './data.js';
-import { createRepository, newId, readApiLog } from './store.js';
+import { MONTH_NAMES, getEmissionFactor } from './data.js';
+import { createRepository, newId, readApiLog, readOutbox } from './store.js';
 import { download, fmt, toCsv } from './utils.js';
 import { validateRecord } from './validation.js';
 import { renderApi } from './views/api.js';
@@ -58,7 +58,7 @@ function render({ keepFocus = false } = {}) {
     calculo: () => renderCalculo(all, param),
     medicion: renderMedicion,
     relevamiento: renderRelevamiento,
-    api: () => renderApi(readApiLog()),
+    api: () => renderApi(readApiLog(), readOutbox()),
     documentacion: renderDocs,
   };
   main.innerHTML = views[view]();
@@ -93,7 +93,7 @@ function exportCsv() {
 
 function exportJson() {
   const all = repo.findAll();
-  download('campusco2-grupo2-intercambio.json', JSON.stringify(exchangePayload(all, aggregate(all)), null, 2), 'application/json');
+  download('campusco2-grupo2-intercambio.json', JSON.stringify(exchangePayload(all, aggregate(all), getEmissionFactor()), null, 2), 'application/json');
   say('Archivo de intercambio JSON exportado.');
 }
 
@@ -166,6 +166,12 @@ document.addEventListener('click', (e) => {
   if (t.matches('[data-export="csv"]')) exportCsv();
   if (t.matches('[data-export="json"]')) exportJson();
   if (t.matches('[data-api-check]')) runApiCheck(true);
+  if (t.matches('[data-api-send]')) {
+    const sent = sendRecords(aggregate(repo.findAll()), getEmissionFactor());
+    const ok = sent.filter((s) => s.status === 201).length;
+    say(`${ok} de ${sent.length} envíos aceptados por la API (201).`);
+    render({ keepFocus: true });
+  }
   if (t.matches('[data-delete]')) {
     const box = main.querySelector('[data-confirm]');
     const rec = repo.findById(t.dataset.delete);
@@ -213,3 +219,5 @@ new ResizeObserver(() => {
 }).observe(main);
 installTooltip(main);
 render();
+// El factor de emisión se pide a la API central al iniciar; si responde, se recalcula todo con ese valor.
+loadFactor().then((f) => { if (f) render({ keepFocus: true }); }).catch(() => say('No se pudo consultar el factor a la API central; se usa el valor de referencia.'));

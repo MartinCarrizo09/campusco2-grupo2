@@ -1,0 +1,34 @@
+{
+  "api": "CampusCO2 · API central",
+  "version": "1.0.0",
+  "recurso": "fuentes",
+  "total": 5,
+  "generado": "2026-11-15T12:00:00-03:00",
+  "datos": [
+    {
+      "id": "smn",
+      "nombre": "SMN · Estadísticas climatológicas normales 1991–2020, Córdoba Observatorio",
+      "url": "https://repositorio.smn.gob.ar/bitstream/handle/20.500.12160/2506/estad%C3%ADsticas_climatol%C3%B3gicas_normales_1991-2020.pdf"
+    },
+    {
+      "id": "ben",
+      "nombre": "Secretaría de Energía · Balance Energético Nacional, documento metodológico",
+      "url": "https://www.energia.gob.ar/contenidos/archivos/Reorganizacion/informacion_del_mercado/publicaciones/energia_en_gral/balances_2016/documento-metodologico-balance-energetico-nacional-final-2015.pdf"
+    },
+    {
+      "id": "boletin-103",
+      "nombre": "UTN FRC · Boletín 103 (07/02/2012)",
+      "url": "https://www.frc.utn.edu.ar/prensa/pub/boletin/103-boletinWeb.html"
+    },
+    {
+      "id": "green-2026",
+      "nombre": "Green Software 2026 · Factores energéticos actualizados a 2026",
+      "url": null
+    },
+    {
+      "id": "ipcc-2006",
+      "nombre": "IPCC 2006 · Directrices, vol. 2, cap. 2: combustión estacionaria",
+      "url": "https://www.ipcc-nggip.iges.or.jp/public/2006gl/pdf/2_Volume2/V2_2_Ch2_Stationary_Combustion.pdf"
+    }
+  ]
+}

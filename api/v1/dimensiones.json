@@ -1,0 +1,99 @@
+{
+  "api": "CampusCO2 · API central",
+  "version": "1.0.0",
+  "recurso": "dimensiones",
+  "total": 15,
+  "generado": "2026-11-15T12:00:00-03:00",
+  "datos": [
+    {
+      "id": "energia-electrica",
+      "numero": 1,
+      "nombre": "Energía eléctrica",
+      "alcance": "2"
+    },
+    {
+      "id": "combustibles",
+      "numero": 2,
+      "nombre": "Combustibles y energía térmica",
+      "alcance": "1"
+    },
+    {
+      "id": "climatizacion",
+      "numero": 3,
+      "nombre": "Climatización y gases refrigerantes",
+      "alcance": "1"
+    },
+    {
+      "id": "infraestructura",
+      "numero": 4,
+      "nombre": "Infraestructura y edificios",
+      "alcance": "3"
+    },
+    {
+      "id": "movilidad",
+      "numero": 5,
+      "nombre": "Movilidad de estudiantes, docentes y personal",
+      "alcance": "3"
+    },
+    {
+      "id": "transporte",
+      "numero": 6,
+      "nombre": "Transporte institucional",
+      "alcance": "1"
+    },
+    {
+      "id": "viajes",
+      "numero": 7,
+      "nombre": "Viajes académicos e institucionales",
+      "alcance": "3"
+    },
+    {
+      "id": "compras",
+      "numero": 8,
+      "nombre": "Compras y cadena de suministro",
+      "alcance": "3"
+    },
+    {
+      "id": "equipamiento",
+      "numero": 9,
+      "nombre": "Equipamiento tecnológico y digital",
+      "alcance": "3"
+    },
+    {
+      "id": "laboratorios",
+      "numero": 10,
+      "nombre": "Laboratorios e investigación",
+      "alcance": "3"
+    },
+    {
+      "id": "alimentacion",
+      "numero": 11,
+      "nombre": "Alimentación y cantina",
+      "alcance": "3"
+    },
+    {
+      "id": "residuos",
+      "numero": 12,
+      "nombre": "Residuos",
+      "alcance": "3"
+    },
+    {
+      "id": "agua",
+      "numero": 13,
+      "nombre": "Agua y aguas residuales",
+      "alcance": "3"
+    },
+    {
+      "id": "papel",
+      "numero": 14,
+      "nombre": "Papel, insumos y servicios operativos",
+      "alcance": "3"
+    },
+    {
+      "id": "mitigacion",
+      "numero": 15,
+      "nombre": "Proyectos de mitigación y emisiones evitadas",
+      "alcance": "evitadas"
+    }
+  ]
+}
